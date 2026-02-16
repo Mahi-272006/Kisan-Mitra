@@ -4,9 +4,11 @@ export type Language = 'en' | 'hi' | 'pa';
 
 interface LanguageContextType {
   language: Language;
+  speechLang: string; // 🔊 for Web Speech API
   setLanguage: (lang: Language) => void;
   t: (key: string) => string;
 }
+
 
 const translations = {
   en: {
@@ -341,6 +343,12 @@ const translations = {
   }
 };
 
+const speechLanguageMap: Record<Language, string> = {
+  en: 'en-IN',
+  hi: 'hi-IN',
+  pa: 'pa-IN',
+};
+
 const LanguageContext = createContext<LanguageContextType | undefined>(undefined);
 
 export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
@@ -350,11 +358,14 @@ export const LanguageProvider: React.FC<{ children: ReactNode }> = ({ children }
     return translations[language][key as keyof typeof translations['en']] || key;
   };
 
-  return (
-    <LanguageContext.Provider value={{ language, setLanguage, t }}>
-      {children}
-    </LanguageContext.Provider>
-  );
+  const speechLang = speechLanguageMap[language];
+
+return (
+  <LanguageContext.Provider value={{ language, speechLang, setLanguage, t }}>
+    {children}
+  </LanguageContext.Provider>
+);
+
 };
 
 export const useLanguage = () => {
