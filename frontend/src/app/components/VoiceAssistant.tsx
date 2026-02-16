@@ -7,36 +7,32 @@ interface VoiceAssistantProps {
 }
 
 export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ pageContent }) => {
-  const { t, language } = useLanguage();
+  const { t, speechLang } = useLanguage();
   const [isSpeaking, setIsSpeaking] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
 
-  const getVoiceLang = () => {
-    switch (language) {
-      case 'hi':
-        return 'hi-IN';
-      case 'pa':
-        return 'pa-IN';
-      default:
-        return 'en-IN';
-    }
-  };
+  
 
   const speak = (text: string) => {
-    if ('speechSynthesis' in window) {
-      window.speechSynthesis.cancel();
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.lang = getVoiceLang();
-      utterance.rate = 0.9;
-      utterance.pitch = 1;
-      
-      utterance.onstart = () => setIsSpeaking(true);
-      utterance.onend = () => setIsSpeaking(false);
-      utterance.onerror = () => setIsSpeaking(false);
-      
-      window.speechSynthesis.speak(utterance);
-    }
-  };
+  if (!('speechSynthesis' in window)) {
+    alert('Voice not supported in this browser');
+    return;
+  }
+
+  window.speechSynthesis.cancel();
+
+  const utterance = new SpeechSynthesisUtterance(text);
+  utterance.lang = speechLang;
+  utterance.rate = 0.9;
+  utterance.pitch = 1;
+
+  utterance.onstart = () => setIsSpeaking(true);
+  utterance.onend = () => setIsSpeaking(false);
+  utterance.onerror = () => setIsSpeaking(false);
+
+  window.speechSynthesis.speak(utterance);
+};
+
 
   const stopSpeaking = () => {
     if ('speechSynthesis' in window) {
@@ -64,7 +60,8 @@ export const VoiceAssistant: React.FC<VoiceAssistantProps> = ({ pageContent }) =
       document.removeEventListener('click', handleTap);
       stopSpeaking();
     };
-  }, [language]);
+  }, [speechLang]);
+
 
   return (
     <>
